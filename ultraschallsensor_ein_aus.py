@@ -3,6 +3,7 @@ import RPi.GPIO as GPIO
 import time
 from subprocess import call
 import os
+import subprocess
 
 #GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -28,11 +29,11 @@ def distance():
 
 	# save StartTime
 	while GPIO.input(GPIO_ECHO) == 0:
-		StartTime = time.time()
+	    StartTime = time.time()
 
 	# save time of arrival
 	while GPIO.input(GPIO_ECHO) == 1:
-		StopTime = time.time()
+	    StopTime = time.time()
 
 	# time difference between start and arrival
 	TimeElapsed = StopTime - StartTime
@@ -40,12 +41,14 @@ def distance():
 	# and divide by 2, because there and back
 	distance = (TimeElapsed * 34300) / 2
 
-        bool_ein = os.system('tvservice -s|grep "state 0x12000a"')
-        print("%s" % bool_ein)
+        #bool_ein = os.system('tvservice -s|grep 0x12000a')
+	bool_ein = bool subprocess.check_output("tvservice -s|grep '0x12000a'", shell=True)
+	streamdata = bool_ein.communicate()[0]
+        print("%s" % bool_ein.returncode)
 
 	if distance < 15.0 and distance > 0.0:
             #if (call(["tvservice -s", "|", "grep -q", "state 0x12000a"])) is True:
-            if  (os.system('tvservice -s|grep "state 0x12000a"')):  
+            if  (bool_ein):  
                 print("Monitor wird ausgeschaltet----------------------------------")
                 #call(["tvservice", "-o"])
             elif (os.system('tvservice -s | grep -q "state 0x120002"')) is True:
