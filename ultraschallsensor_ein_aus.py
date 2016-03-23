@@ -16,6 +16,11 @@ GPIO_ECHO = 27
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 
+
+#Distance
+MAX_DIST = 15.0
+MIN_DIST = 0.0
+
 def distance():
 	# set Trigger to HIGH
 	GPIO.output(GPIO_TRIGGER, True)
@@ -42,19 +47,21 @@ def distance():
 	distance = (TimeElapsed * 34300) / 2
 
         #bool_ein = os.system('tvservice -s|grep 0x12000a')
-	bool_ein = bool subprocess.check_output("tvservice -s|grep '0x12000a'", shell=True)
-	streamdata = bool_ein.communicate()[0]
-        print("%s" % bool_ein.returncode)
-
-	if distance < 15.0 and distance > 0.0:
-            #if (call(["tvservice -s", "|", "grep -q", "state 0x12000a"])) is True:
-            if  (bool_ein):  
-                print("Monitor wird ausgeschaltet----------------------------------")
-                #call(["tvservice", "-o"])
-            elif (os.system('tvservice -s | grep -q "state 0x120002"')) is True:
-            #elif (call(["tvservice", "-s", "|", "grep", "-q", "state 0x12000a"])) is True:
-                #call(["tvservice", "--preferred", ">", "/dev/null;", "fbset" "-depth", "8;", "fbset" "-depth", "16;", "xrefresh;"])
-                print("Monitor wird eingeschaltet----------------------------------")
+	bool_on_off = subprocess.check_output(["tvservice", "-s"])
+	#print bool_on_off.find("12000a")
+        
+        #Turning monitor on/off if there is something in the right distance
+	if distance < MAX_DIST and distance > MIN_DIST:
+            if  (bool_on_off.find("12000a") > -1):
+                call(["tvservice", "-o"])
+                print("Powering monitor off")
+                time.sleep(0.5)
+            elif (bool_on_off.find("120002") > -1):
+                call(["tvservice", "-p"])
+                call(["fbset", "-depth", "8"])
+                call(["fbset", "-depth", "16"])
+                call(["xrefresh"])
+                print("Powering monitor on")
             return distance
         else:
             return 0.0
@@ -63,7 +70,9 @@ if __name__ == '__main__':
 	try:
 		while True:
 			dist = distance()
-			print ("Measured Distance = %.1f cm" % dist)
+			if dist > MIN_DIST: 
+                                print("Measured Distance = %.1f cm" % dist)
+                                print("\n")
 			time.sleep(1)
 
 		# Reset by pressing CTRL + C
