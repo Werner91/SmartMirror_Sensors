@@ -2,7 +2,6 @@
 import RPi.GPIO as GPIO
 import time
 from subprocess import call
-import os
 import subprocess
 
 #GPIO Mode (BOARD / BCM)
@@ -46,9 +45,8 @@ def distance():
 	# and divide by 2, because there and back
 	distance = (TimeElapsed * 34300) / 2
 
-        #bool_ein = os.system('tvservice -s|grep 0x12000a')
+        #check monitor status
 	bool_on_off = subprocess.check_output(["tvservice", "-s"])
-	#print bool_on_off.find("12000a")
         
         #Turning monitor on/off if there is something in the right distance
 	if distance < MAX_DIST and distance > MIN_DIST:
@@ -70,7 +68,7 @@ if __name__ == '__main__':
 	try:
 		while True:
 			dist = distance()
-			if dist > MIN_DIST: 
+			if dist <= MAX_DIST and dist > MIN_DIST: 
                                 print("Measured Distance = %.1f cm" % dist)
                                 print("\n")
 			time.sleep(1)

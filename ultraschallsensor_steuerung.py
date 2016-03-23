@@ -2,6 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 from pykeyboard import PyKeyboard
+from subprocess import call
+import subprocess
 
 #GPIO Modus (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -21,6 +23,10 @@ GPIO.setup(GPIO_ECHO_LINKS, GPIO.IN)
 
 #Instanz von PyKeyBoard erstellen
 k = PyKeyboard()
+
+#Distance
+MAX_DIST = 12.0
+MIN_DIST = 0.0
 
 #Testausagbe
 print("Script startet") 
@@ -53,7 +59,7 @@ def distanzRechts():
 	# und durch 2 teilen, da hin und zurueck
 	distanz_RECHTS = (TimeElapsed_RECHTS * 34300) / 2
 
-	if distanz_RECHTS < 12.0 and distanz_RECHTS > 0.0:
+	if distanz_RECHTS < MAX_DIST and distanz_RECHTS > MIN_DIST:
 		#Kommando um ein Tab weiter zu springen
 		k.press_key(k.control_l_key)
 		k.tap_key(k.tab_key)
@@ -92,7 +98,7 @@ def distanzLinks():
 	distanz_LINKS = (TimeElapsed_LINKS * 34300) / 2
 
 
-	if distanz_LINKS < 12.0 and distanz_LINKS > 0.0:
+	if distanz_LINKS < MAX_DIST and distanz_LINKS > MIN_DIST:
 		#Kommando um ein Tab zurueck zu springen
                	k.press_key(k.control_l_key)
 		k.press_key(k.shift_l_key)
@@ -107,19 +113,23 @@ def distanzLinks():
 
 
 if __name__ == '__main__':
-	try:
-		while True:
-			abstandRechts = distanzRechts()
-			abstandLinks = distanzLinks()
-
-                        if abstandRechts > 0.0 or abstandLinks > 0.0:
-                                print ("Gemessene Entfernung rechts = %.1f cm" % abstandRechts)
-                                print ("Gemessene Entfernung links = %.1f cm" % abstandLinks)
-                                print ("\n")
-
-			time.sleep(1)
-
-		# Beim Abbruch durch STRG+C resetten
-	except KeyboardInterrupt:
-		print("Messung vom User gestoppt")
-		GPIO.cleanup()
+        try:
+                while True:
+                        #check monitor status
+                        bool_on_off = subprocess.check_output(["tvservice", "-s"])
+                        if  (bool_on_off.find("12000a") > -1): #monitor is on
+                                abstandRechts = distanzRechts()
+                                abstandLinks = distanzLinks()
+                                if ((abstandRechts > MIN_DIST or abstandLinks > MIN_DIST) and (abstandRechts < MAX_DIST or abstandLinks < MAX_DIST)):
+                                        print ("Gemessene Entfernung rechts = %.1f cm" % abstandRechts)
+                                        print ("Gemessene Entfernung links = %.1f cm" % abstandLinks)
+                                        print ("\n")
+                                        time.sleep(1)
+                        elif (bool_on_off.find("120002") > -1):
+                                #monitor is off - do nothing
+                                time.sleep(1)
+                                
+                #Beim Abbruch durch STRG+C resetten
+        except KeyboardInterrupt:
+                print("Messung vom User gestoppt")
+                GPIO.cleanup()
