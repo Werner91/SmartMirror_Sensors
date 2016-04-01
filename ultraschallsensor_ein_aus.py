@@ -50,7 +50,7 @@ def distance():
         
         #Turning monitor on/off if there is something in the right distance
 	if distance < MAX_DIST and distance > MIN_DIST:
-            if  (bool_on_off.find("12000a") > -1):
+            if  (bool_on_off.find("120006") > -1):
                 call(["tvservice", "-o"])
                 print("Powering monitor off")
                 time.sleep(0.5)
