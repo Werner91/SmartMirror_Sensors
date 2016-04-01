@@ -20,6 +20,9 @@ GPIO.setup(GPIO_ECHO, GPIO.IN)
 MAX_DIST = 15.0
 MIN_DIST = 0.0
 
+#Teststring
+print("On/Off script starting")
+
 def distance():
 	# set Trigger to HIGH
 	GPIO.output(GPIO_TRIGGER, True)
@@ -28,15 +31,14 @@ def distance():
 	time.sleep(0.00001)
 	GPIO.output(GPIO_TRIGGER, False)
 
-	StartTime = time.time()
-	StopTime = time.time()
-
 	# save StartTime
 	while GPIO.input(GPIO_ECHO) == 0:
+            pass    
 	    StartTime = time.time()
 
 	# save time of arrival
 	while GPIO.input(GPIO_ECHO) == 1:
+            pass    
 	    StopTime = time.time()
 
 	# time difference between start and arrival

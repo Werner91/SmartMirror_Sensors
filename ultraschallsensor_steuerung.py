@@ -39,17 +39,16 @@ def distanzRechts():
 	time.sleep(0.00001)
 	GPIO.output(GPIO_TRIGGER_RECHTS, False)
 
-	StartZeit_RECHTS = time.time()
-	StopZeit_RECHTS = time.time()
-
 	# save Starttime of the right sensors
 	while GPIO.input(GPIO_ECHO_RECHTS) == 0:
+                pass
 		StartZeit_RECHTS = time.time()
 
 
 
 	# save Stoptime of the right sensors
 	while GPIO.input(GPIO_ECHO_RECHTS) == 1:
+                pass
 		StopZeit_RECHTS = time.time()
 
 
@@ -77,26 +76,31 @@ def distanzLinks():
 	time.sleep(0.00001)
 	GPIO.output(GPIO_TRIGGER_LINKS, False)
 
-	StartZeit_LINKS = time.time()
-	StopZeit_LINKS = time.time()
 
 	# save Starttime of the left sensors
 	while GPIO.input(GPIO_ECHO_LINKS) == 0:
-		StartZeit_LINKS = time.time()
+                pass
+                print("still in loooooooop\n")
+                StartZeit_LINKS = time.time()
 
 
+        print("passed first loop")
 
 	# save Stoptime of the left sensors
 	while GPIO.input(GPIO_ECHO_LINKS) == 1:
+                pass
 		StopZeit_LINKS = time.time()
 
-
+		
+        print("passed second loop")
+        
 	# time difference between start and arrival of the right sensors
 	TimeElapsed_LINKS = StopZeit_LINKS - StartZeit_LINKS
 	# multiply with the sonic speed (34300 cm/s)
 	# and divide by 2, because there and back
 	distanz_LINKS = (TimeElapsed_LINKS * 34300) / 2
-
+        time.sleep(0.00001)
+        print("%s" % distanz_LINKS)
 
 	if distanz_LINKS < MAX_DIST and distanz_LINKS > MIN_DIST:
 		#Command to jump to previous browsertab
@@ -117,17 +121,29 @@ if __name__ == '__main__':
                 while True:
                         #check monitor status
                         bool_on_off = subprocess.check_output(["tvservice", "-s"])
+                #       print("\n tvservice check %s \n" % bool_on_off)
                         if  (bool_on_off.find("120006") > -1): #monitor is on
-                                abstandRechts = distanzRechts()
+                                
                                 abstandLinks = distanzLinks()
-                                if ((abstandRechts > MIN_DIST or abstandLinks > MIN_DIST) and (abstandRechts < MAX_DIST or abstandLinks < MAX_DIST)):
+                                print("\n left sensor works")
+                                
+                #                print("\n monitor is on \n")
+                                abstandRechts = distanzRechts()
+                                print("\n right sensor works")
+                                
+                                if ((abstandRechts > MIN_DIST and abstandRechts < MAX_DIST) or ( abstandLinks > MIN_DIST and abstandLinks < MAX_DIST)):
                                         print ("Gemessene Entfernung rechts = %.1f cm" % abstandRechts)
                                         print ("Gemessene Entfernung links = %.1f cm" % abstandLinks)
                                         print ("\n")
-                                        time.sleep(1)
+                                print("done start new messung")
+                                time.sleep(1)
                         elif (bool_on_off.find("120002") > -1):
                                 #monitor is off - do nothing
+                                print("\n monitor is off \n")
                                 time.sleep(1)
+                        else:
+                                print("\n could not determine monitor status \n")
+                                time.sleep(1) # to prevent 100% cpu on the looping
                                 
                 # Reset by pressing CTRL + C
         except KeyboardInterrupt:
