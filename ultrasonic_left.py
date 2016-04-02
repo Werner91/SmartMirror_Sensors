@@ -10,15 +10,11 @@ from thread import start_new_thread, allocate_lock
 GPIO.setmode(GPIO.BCM)
 
 #GPIO Pins
-GPIO_TRIGGER_RECHTS = 18
 GPIO_TRIGGER_LINKS= 17
-GPIO_ECHO_RECHTS = 24
 GPIO_ECHO_LINKS = 23
 
 #Direction GPIO-Pins (IN / OUT)
 GPIO.setup(GPIO_TRIGGER_LINKS, GPIO.OUT)
-GPIO.setup(GPIO_TRIGGER_RECHTS, GPIO.OUT)
-GPIO.setup(GPIO_ECHO_RECHTS, GPIO.IN)
 GPIO.setup(GPIO_ECHO_LINKS, GPIO.IN)
 
 
@@ -34,45 +30,7 @@ lock = allocate_lock()
 
 
 #Teststring
-print("Script startet") 
-
-def distanzRechts():
-        
-	# set Trigger on HIGH
-	GPIO.output(GPIO_TRIGGER_RECHTS, True)
-
-	# set Trigger after 0.01ms to LOW
-	time.sleep(0.00001)
-	GPIO.output(GPIO_TRIGGER_RECHTS, False)
-
-	# save Starttime of the right sensors
-	while GPIO.input(GPIO_ECHO_RECHTS) == 0:
-                pass
- #               print("still in loop right sensor")
-	StartZeit_RECHTS = time.time()
-
-
- #       print("after first right sensor while loop")
-	# save Stoptime of the right sensors
-	while GPIO.input(GPIO_ECHO_RECHTS) == 1:
-                pass
-	StopZeit_RECHTS = time.time()
-
-
-	# time difference between start and arrival of the right sensors
-	TimeElapsed_RECHTS = StopZeit_RECHTS - StartZeit_RECHTS
-	# multiply with the sonic speed (34300 cm/s)
-	# and divide by 2, because there and back
-	distanz_RECHTS = (TimeElapsed_RECHTS * 34300) / 2
-
-	if distanz_RECHTS < MAX_DIST and distanz_RECHTS > MIN_DIST:
-		#Command to jump to next browsertab
-		k.press_key(k.control_l_key)
-		k.tap_key(k.tab_key)
-		k.release_key(k.control_l_key)
-		return distanz_RECHTS	
-	else:
-		return 0.0
+print("Left senor script startet") 
 
 
 def distanzLinks():
@@ -107,7 +65,6 @@ def distanzLinks():
 	# multiply with the sonic speed (34300 cm/s)
 	# and divide by 2, because there and back
 	distanz_LINKS = (TimeElapsed_LINKS * 34300) / 2
-        time.sleep(0.00001)
         print("%s \n" % distanz_LINKS)
 
 	if distanz_LINKS < MAX_DIST and distanz_LINKS > MIN_DIST:
@@ -133,20 +90,15 @@ if __name__ == '__main__':
                         bool_on_off = subprocess.check_output(["tvservice", "-s"])
                 #       print("\n tvservice check %s \n" % bool_on_off)
                         if  (bool_on_off.find("120006") > -1): #monitor is on
-                                lock.acquire()
-                                abstandLinks = start_new_thread(distanzLinks,())
-                #                print("\n left sensor works")
-                                abstandRechts = start_new_thread(distanzRechts,())
-                                lock.release()
-                #                print("\n right sensor works")
-                                
+                               
+                                abstandLinks = distanzLinks()
+                #                print("\n left sensor works")                               
                 #                print("\n monitor is on \n")
                                 
                                 
-                                if ((abstandRechts > MIN_DIST and abstandRechts < MAX_DIST) or ( abstandLinks > MIN_DIST and abstandLinks < MAX_DIST)):
-                                        print ("Gemessene Entfernung rechts = %.1f cm" % abstandRechts)
+                                if (abstandLinks > MIN_DIST and abstandLinks < MAX_DIST):
                                         print ("Gemessene Entfernung links = %.1f cm" % abstandLinks)
-                                        print ("\n")
+                                        print ("\n\n")
                 #                print("done start new messung")
                                 time.sleep(1)
                         elif (bool_on_off.find("120002") > -1):
