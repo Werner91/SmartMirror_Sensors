@@ -46,19 +46,13 @@ def distanzLinks():
 	# save Starttime of the left sensors
 	while GPIO.input(GPIO_ECHO_LINKS) == 0:
                 pass
-    #            print("still in loooooooop left sensor\n")
         StartZeit_LINKS = time.time()
 
-
-    #    print("passed first loop")
 
 	# save Stoptime of the left sensors
 	while GPIO.input(GPIO_ECHO_LINKS) == 1:
                 pass
 	StopZeit_LINKS = time.time()
-
-		
-     #   print("passed second loop")
         
 	# time difference between start and arrival of the right sensors
 	TimeElapsed_LINKS = StopZeit_LINKS - StartZeit_LINKS
@@ -88,18 +82,11 @@ if __name__ == '__main__':
                         print("%d \n" %count)
                         #check monitor status
                         bool_on_off = subprocess.check_output(["tvservice", "-s"])
-                #       print("\n tvservice check %s \n" % bool_on_off)
-                        if  (bool_on_off.find("120006") > -1): #monitor is on
-                               
+                        if  (bool_on_off.find("120006") > -1): #monitor is on       
                                 abstandLinks = distanzLinks()
-                #                print("\n left sensor works")                               
-                #                print("\n monitor is on \n")
-                                
-                                
                                 if (abstandLinks > MIN_DIST and abstandLinks < MAX_DIST):
-                                        print ("Gemessene Entfernung links = %.1f cm" % abstandLinks)
+                                        print ("Measured Distance left = %.1f cm" % abstandLinks)
                                         print ("\n\n")
-                #                print("done start new messung")
                                 time.sleep(1)
                         elif (bool_on_off.find("120002") > -1):
                                 #monitor is off - do nothing
@@ -111,5 +98,5 @@ if __name__ == '__main__':
     
                 # Reset by pressing CTRL + C
         except KeyboardInterrupt:
-                print("Messung vom User gestoppt")
+                print("Measurement stopped by User")
                 GPIO.cleanup()

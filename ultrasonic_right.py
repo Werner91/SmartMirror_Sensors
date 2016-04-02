@@ -42,11 +42,8 @@ def distanzRechts():
 	# save Starttime of the right sensors
 	while GPIO.input(GPIO_ECHO_RECHTS) == 0:
                 pass
-                print("still in loop right sensor")
 	StartZeit_RECHTS = time.time()
 
-
-        print("after first right sensor while loop")
 	# save Stoptime of the right sensors
 	while GPIO.input(GPIO_ECHO_RECHTS) == 1:
                 pass
@@ -79,14 +76,11 @@ if __name__ == '__main__':
                         print("%d \n" %count)
                         #check monitor status
                         bool_on_off = subprocess.check_output(["tvservice", "-s"])
-                #       print("\n tvservice check %s \n" % bool_on_off)
                         if  (bool_on_off.find("120006") > -1): #monitor is on
                                 abstandRechts = distanzRechts()
-                #               print("\n right sensor works")
                                 if (abstandRechts > MIN_DIST and abstandRechts < MAX_DIST):
-                                        print ("Gemessene Entfernung rechts = %.1f cm" % abstandRechts)
+                                        print ("Measured Distance right = %.1f cm" % abstandRechts)
                                         print ("\n\n")
-                #                print("done start new messung")
                                 time.sleep(1)
                         elif (bool_on_off.find("120002") > -1):
                                 #monitor is off - do nothing
@@ -98,5 +92,5 @@ if __name__ == '__main__':
     
                 # Reset by pressing CTRL + C
         except KeyboardInterrupt:
-                print("Messung vom User gestoppt")
+                print("Measurement stopped by User")
                 GPIO.cleanup()
