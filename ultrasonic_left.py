@@ -4,7 +4,7 @@ import time
 from pykeyboard import PyKeyboard
 from subprocess import call
 import subprocess
-from thread import start_new_thread, allocate_lock
+
 
 #GPIO Modus (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -22,11 +22,9 @@ GPIO.setup(GPIO_ECHO_LINKS, GPIO.IN)
 k = PyKeyboard()
 
 #Distance
-MAX_DIST = 12.0
+MAX_DIST = 16.0
 MIN_DIST = 0.0
 
-#lock thread
-lock = allocate_lock()
 
 
 #Teststring
@@ -34,7 +32,9 @@ print("Left senor script startet")
 
 
 def distanzLinks():
-        
+
+        GPIO.output(GPIO_TRIGGER_LINKS, False)
+        time.sleep(0.1)
 	# set Trigger on HIGH
 	GPIO.output(GPIO_TRIGGER_LINKS, True)
 
@@ -42,9 +42,17 @@ def distanzLinks():
 	time.sleep(0.00001)
 	GPIO.output(GPIO_TRIGGER_LINKS, False)
 
-
+	timeout = time.time() + (2*(MAX_DIST/100)/(343))
 	# save Starttime of the left sensors
 	while GPIO.input(GPIO_ECHO_LINKS) == 0:
+                if(time.time() > timeout):
+                        break
+                # This is to prevent to get stuck in this loop
+                # This is a Bug of the SR-04 Ultrasonicsensor
+                # If there is a SRF-05 used in stead if a SR-04 his 3 lines can be removed
+                # GPIO.setup(GPIO_ECHO_LINKS, GPIO.OUT)
+                # GPIO.output(GPIO_ECHO_LINKS, False)
+                # GPIO.setup(GPIO_ECHO_LINKS, GPIO.IN)
                 pass
         StartZeit_LINKS = time.time()
 

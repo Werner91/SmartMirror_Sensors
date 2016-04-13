@@ -17,7 +17,7 @@ GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 
 #Distance
-MAX_DIST = 15.0
+MAX_DIST = 10.0
 MIN_DIST = 0.0
 
 #Teststring
@@ -33,7 +33,12 @@ def distance():
 
 	# save StartTime
 	while GPIO.input(GPIO_ECHO) == 0:
-            pass    
+                # This is to prevent to get stuck in this loop
+                # This is a Bug of the SR-04 Ultrasonicsensor
+                # If there is a SRF-05 used in stead if a SR-04 his 3 lines can be removed
+                GPIO.setup(GPIO_ECHO, GPIO.OUT)
+                GPIO.output(GPIO_ECHO, False)
+                GPIO.setup(GPIO_ECHO, GPIO.IN)    
 	StartTime = time.time()
 
 	# save time of arrival
