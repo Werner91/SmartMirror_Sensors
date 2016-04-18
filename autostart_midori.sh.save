@@ -1,0 +1,9 @@
+#!/bin/sh
+unclutter &
+matchbox-window-manager & :
+xset -dpms
+xset s off
+#while true; do
+					/usr/bin/midori -e Fullscreen -a http://127.0.0.1 http://127.0.0.1/others http://127.0.0.1/kalender
+done
+
